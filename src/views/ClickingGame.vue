@@ -3,6 +3,9 @@
     <div class="a">
       <h1>Click button {{selectedButton}} as fast as possible!</h1>
     </div>
+    <div class="timer">
+      <Timer></Timer>
+    </div>
     <div class="progress-bar">
       <Bars v-bind:bars="bars"></Bars>
     </div>
@@ -11,11 +14,13 @@
 
 <script>
 import Bars from '../components/clickinggame/Bars';
+import Timer from '../components/clickinggame/Timer';
 
 export default {
     name: 'ClickingGame',
     components: {
       Bars,
+      Timer,
     },
     data() { // Alternatively, can create a .js data file, but for now this shall suffice.
       return {
