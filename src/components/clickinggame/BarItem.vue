@@ -2,7 +2,7 @@
   <div class="bar-item">
       <p>
         {{bar.name}}
-        {{bar.percentage}}
+        {{bar.percent}}
       </p>
   </div>
 </template>

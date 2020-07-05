@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-bind:key="bar.id" v-for:="bar in bars">
+    <div v-bind:key="bar.id" v-for="bar in bars">
       <BarItem v-bind:bar="bar" />
     </div>
   </div>
