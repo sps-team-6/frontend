@@ -1,9 +1,12 @@
 <template>
   <div class="bar-item">
-      <p>
-        {{bar.name}}
-        {{bar.percent}}
-      </p>
+    <div class="bar-num-clicks">
+      <div class="progress" v-bind:style= "{'background':bar.color, 'width':bar.numClicks+'%'}"></div>
+      <span class="num-clicks">{{bar.numClicks}}</span>
+    </div>
+    <div class="bar-name">
+      {{bar.name}}
+    </div>
   </div>
 </template>
 
@@ -16,8 +19,22 @@ export default {
 
 <style scoped>
   .bar-item {
-    background: #f4f4f4;
-    padding: 10px;
-    border-bottom: 1px #ccc dotted;
+    padding: 30px;
+    margin: 30px;
+  }
+
+  .bar-num-clicks {
+    vertical-align: middle;
+  }
+
+  .progress {
+    float: left;
+    padding: 15px;
+  }
+
+  .bar-name {
+    position: relative;
+    padding: 15px;
+    font-weight: bold;
   }
 </style>

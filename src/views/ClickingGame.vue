@@ -1,7 +1,7 @@
 <template>
   <div class="clicking-game">
     <div class="a">
-      <h1>clicking game yeay</h1>
+      <h1>Click button {{selectedButton}} as fast as possible!</h1>
     </div>
     <div class="progress-bar">
       <Bars v-bind:bars="bars"></Bars>
@@ -17,14 +17,20 @@ export default {
     components: {
       Bars,
     },
-    data() {
+    data() { // Alternatively, can create a .js data file, but for now this shall suffice.
       return {
         bars: [
-          { name:"player 1", percent: 90, color: "#ec407a" },
-          { name:"player 2", percent: 76, color: "#f4511e" },
-          { name:"player 3", percent: 84, color: "#512da8" }
-        ]
+          { name:"player 1", numClicks: 90, color: "#ec407a" },
+          { name:"player 2", numClicks: 56, color: "#f4511e" },
+          { name:"player 3", numClicks: 74, color: "#512da8" }
+        ],
+        buttons: ['A', 'B', 'C', 'D', 'E'],
+        selectedButton: ''
       }
+    },
+    created() {
+      const idx = Math.floor(Math.random() * this.buttons.length);
+      this.selectedButton = this.buttons[idx];
     }
 }
 </script>

@@ -21,7 +21,7 @@ Vue.use(VueRouter)
   {
     path: '/clicking-game',
     name: 'ClickingGame',
-    component: () => import(/* webpackChunkName: "about" */ '../views/ClickingGame.vue')
+    component: () => import('../views/ClickingGame.vue')
   },
 ]
 
