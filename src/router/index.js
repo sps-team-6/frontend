@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
+import ClickingGame from '../views/ClickingGame.vue'
 
 Vue.use(VueRouter)
 
@@ -21,7 +22,7 @@ Vue.use(VueRouter)
   {
     path: '/clicking-game',
     name: 'ClickingGame',
-    component: () => import('../views/ClickingGame.vue')
+    component: ClickingGame
   },
 ]
 
