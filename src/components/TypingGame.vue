@@ -1,15 +1,15 @@
 <template>
-    <div>
-        <div>
+    <v-container>
+        <v-row>
             Instructions: Type in the input box, and press space to submit a word.
-        </div>
-        <div id="typing-game">
-            <div id="text-display">
-
+        </v-row>
+        <v-row>
+            <div id="typing-game">
+                <div id="text-display"></div>
+                <input id="input-field" type="text" />
             </div>
-            <input id="input-field" type="text" />
-        </div>
-    </div>
+        </v-row>
+    </v-container>
 </template>
 
 <script>

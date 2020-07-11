@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
-import Typing from '../components/typinggame/TypingGame'
+import Typing from '../components/TypingGame'
 
 Vue.use(VueRouter)
 
