@@ -7,7 +7,7 @@
     <div class="counter">
       <h2>Count:</h2>
       <div ref="countValue" id="countValue"><h2>{{ count }}</h2></div>
-      <button v-on:click="checkTimer" class="btn btn-primary">Press Me!</button>
+      <button v-on:click="checkTimerButton" class="btn btn-primary">Press Me!</button>
     </div>
 
     <div class="timer">
@@ -25,33 +25,48 @@ import Bars from '../components/clickinggame/Bars';
 import Timer from '../components/clickinggame/Timer';
 
 export default {
-    name: 'ClickingGame',
-    components: {
-      Bars,
-      Timer,
+  name: 'ClickingGame',
+  components: {
+    Bars,
+    Timer,
+  },
+  data() { // Alternatively, can create a .js data file, but for now this shall suffice.
+    return {
+      bars: [
+        { name:"player 1", numClicks: 0, color: "#c7b198" },
+        { name:"player 2", numClicks: 56, color: "#dfd3c3" },
+        { name:"player 3", numClicks: 74, color: "#f0ece3" }
+      ],
+      count: 0,
+    }
+  },
+  methods: {
+    incrementCount: function() { // TODO: prevent overflows.
+      this.count += 1
+      this.bars[0].numClicks += 1;
     },
-    data() { // Alternatively, can create a .js data file, but for now this shall suffice.
-      return {
-        bars: [
-          { name:"player 1", numClicks: 0, color: "#c7b198" },
-          { name:"player 2", numClicks: 56, color: "#dfd3c3" },
-          { name:"player 3", numClicks: 74, color: "#f0ece3" }
-        ],
-        count: 0
+    checkTimerButton: function() {
+      var timerValue = document.getElementById('timer').textContent;
+      if (timerValue > 0) {
+        this.incrementCount();
+      } else {
+        // TODO: this shd be when timer is 0 regardless of whether the button is clicked or not.
+        alert("Game over! The winner is " + this.getWinner()); 
       }
     },
-    methods: {
-      incrementCount: function() { // TODO: prevent overflows.
-        this.count += 1
-        this.bars[0].numClicks += 1;
-      },
-      checkTimer: function() {
-        var timerValue = document.getElementById('timer').textContent;
-        if (timerValue > 0) {
-          this.incrementCount();
+    getWinner: function() {
+      var max = 0;
+      var playerName = "";
+      for (var i = 0; i < this.bars.length; i++) {
+        var bar = this.bars[i];
+        if (bar.numClicks > max) {
+          max = bar.numClicks;
+          playerName = bar.name;
         }
       }
+      return playerName;
     },
+  },
 }
 </script>
 
