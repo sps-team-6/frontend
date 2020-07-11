@@ -1,5 +1,6 @@
 <template>
   <v-app id="app">
+    <link href="https://fonts.googleapis.com/css?family=Material+Icons" rel="stylesheet">
     <div id="nav">
       <router-link to="/">Home</router-link> |
       <router-link to="/about">About</router-link> |
