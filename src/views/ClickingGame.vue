@@ -7,7 +7,7 @@
     <div class="counter">
       <h2>Count:</h2>
       <div ref="countValue" id="countValue"><h2>{{ count }}</h2></div>
-      <button v-on:click="incrementCount" class="btn btn-primary">Press Me!</button>
+      <button v-on:click="checkTimer" class="btn btn-primary">Press Me!</button>
     </div>
 
     <div class="timer">
@@ -41,9 +41,15 @@ export default {
       }
     },
     methods: {
-      incrementCount: function() {
+      incrementCount: function() { // TODO: prevent overflows.
         this.count += 1
         this.bars[0].numClicks += 1;
+      },
+      checkTimer: function() {
+        var timerValue = document.getElementById('timer').textContent;
+        if (timerValue > 0) {
+          this.incrementCount();
+        }
       }
     },
 }

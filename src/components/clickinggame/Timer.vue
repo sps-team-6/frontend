@@ -1,5 +1,5 @@
 <template>
-    <div class="timer">
+    <div id="timer">
       {{timerCount}}
     </div>
 </template>
@@ -28,7 +28,7 @@ export default {
 </script>
 
 <style scoped>
-  .timer {
+  #timer {
     font-weight: bolder;
   }
 </style>
