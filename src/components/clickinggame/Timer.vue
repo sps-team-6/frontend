@@ -8,7 +8,7 @@
 export default {
   data() {
     return {
-        timerCount: 30
+        timerCount: 15
     }
   },
 

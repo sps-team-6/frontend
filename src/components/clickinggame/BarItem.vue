@@ -16,7 +16,8 @@ export default {
   props: ['bar'],
   methods: {
     updateWidth: function(bar) {
-      return bar.numClicks+'%';
+      var valueToReduce = 10; // To prevent the bar from increasing too quickly.
+      return bar.numClicks - valueToReduce +'%';
     }
   }
 }
