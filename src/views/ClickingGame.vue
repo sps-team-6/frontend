@@ -5,7 +5,8 @@
     </div>
 
     <div class="counter">
-      <h2>Count: {{ count }}</h2>
+      <h2>Count:</h2>
+      <div ref="countValue" id="countValue"><h2>{{ count }}</h2></div>
       <button v-on:click="incrementCount" class="btn btn-primary">Press Me!</button>
     </div>
 
@@ -32,22 +33,17 @@ export default {
     data() { // Alternatively, can create a .js data file, but for now this shall suffice.
       return {
         bars: [
-          { name:"player 1", numClicks: 90, color: "#c7b198" },
+          { name:"player 1", numClicks: 0, color: "#c7b198" },
           { name:"player 2", numClicks: 56, color: "#dfd3c3" },
           { name:"player 3", numClicks: 74, color: "#f0ece3" }
         ],
-        // buttons: ['A', 'B', 'C', 'D', 'E'],
-        // selectedButton: '',
         count: 0
       }
     },
-    /*created() {
-      const idx = Math.floor(Math.random() * this.buttons.length);
-      this.selectedButton = this.buttons[idx];
-    },*/
     methods: {
       incrementCount: function() {
         this.count += 1
+        this.bars[0].numClicks += 1;
       }
     },
     computed: {

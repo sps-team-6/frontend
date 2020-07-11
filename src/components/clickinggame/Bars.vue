@@ -14,7 +14,7 @@ export default {
   components: {
     BarItem
   },
-  props: ["bars"],
+  props: ['bars'],
 }
 </script>
 

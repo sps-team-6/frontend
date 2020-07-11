@@ -1,7 +1,7 @@
 <template>
   <div class="bar-item">
     <div class="bar-num-clicks">
-      <div class="progress" v-bind:style= "{'background':bar.color, 'width':bar.numClicks+'%'}"></div>
+      <div id="progress" v-bind:style= "{'background':bar.color, 'width':updateWidth(bar)}"></div>
       <span class="num-clicks">{{bar.numClicks}}</span>
     </div>
     <div class="bar-name">
@@ -13,7 +13,12 @@
 <script>
 export default {
   name: "BarItem",
-  props: ["bar"],
+  props: ['bar'],
+  methods: {
+    updateWidth: function(bar) {
+      return bar.numClicks+'%';
+    }
+  }
 }
 </script>
 
@@ -27,7 +32,7 @@ export default {
     vertical-align: middle;
   }
 
-  .progress {
+  #progress {
     float: left;
     padding: 15px;
   }
