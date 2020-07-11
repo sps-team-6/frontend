@@ -24,6 +24,11 @@
 import Bars from '../components/clickinggame/Bars';
 import Timer from '../components/clickinggame/Timer';
 
+window.onload = function() {
+  // TODO: this only works when page is reloaded, and not when is toggled to.
+  alert("Start game?");
+}
+
 export default {
   name: 'ClickingGame',
   components: {
