@@ -46,19 +46,6 @@ export default {
         this.bars[0].numClicks += 1;
       }
     },
-    computed: {
-    percent() {
-      return this.percentage.toFixed();
-    }
-    },
-    created() {
-      var intval = setInterval(() => {
-        if(this.percentage < 100)
-          this.percentage += .1;
-        else
-          clearInterval(intval);
-      }, 10);
-    }
 }
 </script>
 
