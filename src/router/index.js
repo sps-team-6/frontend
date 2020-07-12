@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
-import Typing from '../components/TypingGame/TypingGame'
 
 Vue.use(VueRouter)
 
@@ -14,7 +13,7 @@ Vue.use(VueRouter)
   {
     path: '/typing',
     name: 'Typing',
-    component: Typing
+    component: () => import(/* webpackChunkName: "typing" */ '../components/TypingGame/TypingGame.vue')
   },
   {
     path: '/about',

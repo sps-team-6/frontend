@@ -46,8 +46,27 @@
 
 <script>
     import wordBank from "./text/text"
+    import io from "socket.io-client"
 
-    const TIME = 60;
+    const TIME = 10;
+    console.log(process.env.VUE_APP_SERVER_URL)
+
+    const socket = io(process.env.VUE_APP_SERVER_URL)
+    socket.emit('join', { gameType: "typing", roomNo: 0 })
+    socket.emit('ready', { gameType: "typing", roomNo: 0 })
+
+    socket.on('joinStatus', res => {
+        console.log(res)
+    })
+    socket.on('readyStatus', res => {
+        console.log(res)
+    })
+    socket.on('typingResponse', res => {
+        console.log(res)
+    })
+    socket.on('completeResponse', res => {
+        console.log(res)
+    })
 
     export default {
         data: function() {
@@ -81,7 +100,6 @@
                 this.wordList = Array.from(wordBank.pap)
             },
             showText: function() {
-                console.log(this.wordList)
                 const textDisplay = document.getElementById('text-display')
                 this.wordList.forEach(word => {
                     const span = document.createElement("span")
@@ -123,9 +141,11 @@
                 this.timer = time
                 if (time > 0) {
                     setTimeout(() => {
+                        socket.emit('typing', { gameType: "typing", roomNo: 0, score: this.wpm })
                         this.countDownTimer(time - 1)
                     }, 1000)
                 } else {
+                    socket.emit('complete', { gameType: "typing", roomNo: 0, score: this.wpm })
                     console.log('done!')
                 }
             }
