@@ -1,5 +1,15 @@
 <template>
     <v-container fluid id="container">
+        <v-dialog v-model="isGameOver" max-width="30%">
+            <v-card class="mx-auto" min-height="30%">
+                <v-card-title>
+                    <p class="display-1 text--primary">Results</p>
+                </v-card-title>
+                <v-card-subtitle>
+                    <p class="text-primary">Game over! Your final score: {{ wpm - incorrectWords }}</p>
+                </v-card-subtitle>
+            </v-card>
+        </v-dialog>
         <v-row justify="center">
             <v-avatar color="pink">KA</v-avatar>
             <v-avatar color="red">JG</v-avatar>
@@ -10,23 +20,25 @@
                 <div id="text-display"></div>
                 <v-text-field
                     outlined
-                    label="Enter text"
+                    :disabled="isGameOver"
+                    label="Start typing here!"
                     id="input-field"
                     v-model="inputText"
                     v-on:keydown.space.prevent="handleInput"
+                    v-on:keydown.once="handleStart"
                 >
                 </v-text-field>
             </v-card>
         </v-row>
         <v-row>
             <v-col>
-                <v-btn text>{{ 0 }} WPM</v-btn>
+                <v-btn text>{{ wpm }} WPM</v-btn>
             </v-col>
             <v-col>
                 <v-btn text>{{ incorrectWords }} mistyped</v-btn>
             </v-col>
             <v-col>
-                <countdown :start="timer" :done="timeUp"></countdown>
+                <v-btn text>{{ timer }} seconds left</v-btn>
             </v-col>
         </v-row>
     </v-container>
@@ -34,7 +46,8 @@
 
 <script>
     import wordBank from "./text/text"
-    import CountDown from '../Countdown/CountDown'
+
+    const TIME = 60;
 
     export default {
         data: function() {
@@ -44,7 +57,17 @@
                 correctWords: 0,
                 incorrectWords: 0,
                 inputText: "",
-                timer: 4, // 60 seconds
+                timer: TIME, // 60 seconds
+                timerStarted: false
+            }
+        },
+        computed: {
+            wpm: function() {
+                const timeInMins = ((TIME - this.timer) / 60) || 1
+                return Math.floor(this.correctWords / timeInMins)
+            },
+            isGameOver: function() {
+                return this.timer <= 0 || this.currWordIdx >= this.wordList.length
             }
         },
         beforeMount: function() {
@@ -54,11 +77,8 @@
             this.showText()
         },
         methods: {
-            timeUp: function() {
-                console.log('DONE!')
-            },
             loadText: function() {
-                this.wordList = Array.from(wordBank.lorem)
+                this.wordList = Array.from(wordBank.pap)
             },
             showText: function() {
                 console.log(this.wordList)
@@ -93,9 +113,22 @@
                 this.inputText = ""
                 this.currWordIdx++
             },
-        },
-        components: {
-            'countdown': CountDown
+            handleStart: function() {
+                if (!this.timerStarted) {
+                    this.countDownTimer(this.timer)
+                    this.timerStarted = false
+                }
+            },
+            countDownTimer: function(time) {
+                this.timer = time
+                if (time > 0) {
+                    setTimeout(() => {
+                        this.countDownTimer(time - 1)
+                    }, 1000)
+                } else {
+                    console.log('done!')
+                }
+            }
         }
     }
 </script>
@@ -116,6 +149,9 @@
         margin: 8px;
         border-radius: 16px;
     }
+    #container {
+        width: 50%;
+    }
     .highlighted {
         color: blueviolet;
     }
@@ -124,9 +160,6 @@
     }
     .incorrect {
         color: crimson;
-    }
-    #container {
-        width: 50%;
     }
     .v-avatar {
         margin: 8px;
