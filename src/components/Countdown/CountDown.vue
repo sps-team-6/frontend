@@ -7,21 +7,26 @@
         props: {
             start: {
                 type: Number,
-                default: 60,
+                default: 5,
+            },
+            done: {
+                type: Function
             }
         },
         data() {
             return {
-                countDown : this.start
+                countDown: this.start
             }
         },
         methods: {
             countDownTimer: function() {
-                if(this.countDown > 0) {
+                if (this.countDown > 0) {
                     setTimeout(() => {
                         this.countDown -= 1
                         this.countDownTimer()
                     }, 1000)
+                } else {
+                    this.done()
                 }
             }
         },

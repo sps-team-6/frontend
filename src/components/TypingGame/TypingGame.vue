@@ -26,7 +26,7 @@
                 <v-btn text>{{ incorrectWords }} mistyped</v-btn>
             </v-col>
             <v-col>
-                <countdown></countdown>
+                <countdown :start="timer" :done="timeUp"></countdown>
             </v-col>
         </v-row>
     </v-container>
@@ -44,6 +44,7 @@
                 correctWords: 0,
                 incorrectWords: 0,
                 inputText: "",
+                timer: 4, // 60 seconds
             }
         },
         beforeMount: function() {
@@ -53,6 +54,9 @@
             this.showText()
         },
         methods: {
+            timeUp: function() {
+                console.log('DONE!')
+            },
             loadText: function() {
                 this.wordList = Array.from(wordBank.lorem)
             },
