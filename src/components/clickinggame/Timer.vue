@@ -15,13 +15,14 @@ export default {
   watch: {
     timerCount: {
       handler(value) {
+        this.$emit("timerValue", this.timerCount);
         if (value > 0) {
           setTimeout(() => {
             this.timerCount--;
           }, 1000);
         }
       },
-      immediate: true // This ensures the watcher is triggered upon creation
+      immediate: true, // This ensures the watcher is triggered upon creation
     }
   },
 }

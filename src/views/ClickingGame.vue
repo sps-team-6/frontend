@@ -11,7 +11,7 @@
     </div>
 
     <div class="timer">
-      <Timer></Timer>
+      <Timer @timerValue="checkTimerValue"></Timer>
     </div>
 
     <div class="progress-bar">
@@ -54,9 +54,6 @@ export default {
       var timerValue = document.getElementById('timer').textContent;
       if (timerValue > 0) {
         this.incrementCount();
-      } else {
-        // TODO: this shd be when timer is 0 regardless of whether the button is clicked or not.
-        alert("Game over! The winner is " + this.getWinner()); 
       }
     },
     getWinner: function() {
@@ -71,6 +68,11 @@ export default {
       }
       return playerName;
     },
+    checkTimerValue: function(value) {
+      if (value == 0) {
+        alert("Game over! The winner is " + this.getWinner()); 
+      }
+    }
   },
 }
 </script>
