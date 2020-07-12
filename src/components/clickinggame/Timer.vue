@@ -1,0 +1,35 @@
+<template>
+    <div id="timer">
+      {{timerCount}}
+    </div>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+        timerCount: 15
+    }
+  },
+
+  watch: {
+    timerCount: {
+      handler(value) {
+        this.$emit("timerValue", this.timerCount);
+        if (value > 0) {
+          setTimeout(() => {
+            this.timerCount--;
+          }, 1000);
+        }
+      },
+      immediate: true, // This ensures the watcher is triggered upon creation
+    }
+  },
+}
+</script>
+
+<style scoped>
+  #timer {
+    font-weight: bolder;
+  }
+</style>
