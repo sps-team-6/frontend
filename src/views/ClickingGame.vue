@@ -21,60 +21,79 @@
 </template>
 
 <script>
-import Bars from '../components/clickinggame/Bars';
-import Timer from '../components/clickinggame/Timer';
+  import Bars from '../components/clickinggame/Bars';
+  import Timer from '../components/clickinggame/Timer';
 
-window.onload = function() {
-  // TODO: this only works when page is reloaded, and not when is toggled to.
-  alert("Start game?");
-}
+  import io from "socket.io-client";
 
-export default {
-  name: 'ClickingGame',
-  components: {
-    Bars,
-    Timer,
-  },
-  data() { // Alternatively, can create a .js data file, but for now this shall suffice.
-    return {
-      bars: [
-        { name:"player 1", numClicks: 0, color: "#c7b198" },
-        { name:"player 2", numClicks: 56, color: "#dfd3c3" },
-        { name:"player 3", numClicks: 74, color: "#f0ece3" }
-      ],
-      count: 0,
-    }
-  },
-  methods: {
-    incrementCount: function() { // TODO: prevent overflows.
-      this.count += 1
-      this.bars[0].numClicks += 1;
+  console.log(process.env.VUE_APP_SERVER_URL)
+
+  const socket = io(process.env.VUE_APP_SERVER_URL)
+  socket.emit('join', { gameType: "clicking", roomNo: 0 })
+  socket.emit('ready', { gameType: "clicking", roomNo: 0 })
+
+  socket.on('joinStatus', res => {
+      console.log(res)
+  })
+  socket.on('readyStatus', res => {
+      console.log(res)
+  })
+  socket.on('typingResponse', res => {
+      console.log(res)
+  })
+  socket.on('completeResponse', res => {
+      console.log(res)
+  })
+
+  export default {
+    name: 'ClickingGame',
+    components: {
+      Bars,
+      Timer,
     },
-    checkTimerButton: function() {
-      var timerValue = document.getElementById('timer').textContent;
-      if (timerValue > 0) {
-        this.incrementCount();
+    data() { // Alternatively, can create a .js data file, but for now this shall suffice.
+      return {
+        bars: [
+          { name:"player 1", numClicks: 0, color: "#c7b198" },
+          { name:"player 2", numClicks: 56, color: "#dfd3c3" },
+          { name:"player 3", numClicks: 74, color: "#f0ece3" }
+        ],
+        count: 0,
       }
     },
-    getWinner: function() {
-      var max = 0;
-      var playerName = "";
-      for (var i = 0; i < this.bars.length; i++) {
-        var bar = this.bars[i];
-        if (bar.numClicks > max) {
-          max = bar.numClicks;
-          playerName = bar.name;
+    methods: {
+      incrementCount: function() { // TODO: prevent overflows.
+        // this.count++;
+        socket.emit('clicking', { gameType: "clicking", roomNo: 0, score: this.count })
+        this.bars[0].numClicks += 1;
+      },
+      checkTimerButton: function() {
+        var timerValue = document.getElementById('timer').textContent;
+        if (timerValue > 0) {
+          this.incrementCount();
+        }
+      },
+      getWinner: function() {
+        var max = 0;
+        var playerName = "";
+        for (var i = 0; i < this.bars.length; i++) {
+          var bar = this.bars[i];
+          if (bar.numClicks > max) {
+            max = bar.numClicks;
+            playerName = bar.name;
+          }
+        }
+        return playerName;
+      },
+      checkTimerValue: function(value) {
+        if (value == 0) {
+          socket.emit('complete', { gameType: "clicking", roomNo: 0, score: this.count });
+          console.log('game over!');
+          alert("Game over! The winner is " + this.getWinner()); 
         }
       }
-      return playerName;
     },
-    checkTimerValue: function(value) {
-      if (value == 0) {
-        alert("Game over! The winner is " + this.getWinner()); 
-      }
-    }
-  },
-}
+  }
 </script>
 
 <style scoped>
