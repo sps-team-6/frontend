@@ -12,6 +12,11 @@ Vue.use(VueRouter)
     component: Home
   },
   {
+    path: '/typing',
+    name: 'Typing',
+    component: () => import(/* webpackChunkName: "typing" */ '../components/TypingGame/TypingGame.vue')
+  },
+  {
     path: '/about',
     name: 'About',
     // route level code-splitting
