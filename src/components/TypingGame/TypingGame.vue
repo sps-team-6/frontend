@@ -11,9 +11,10 @@
             </v-card>
         </v-dialog>
         <v-row justify="center">
-            <v-avatar class="tg__avatar" color="pink">KA</v-avatar>
-            <v-avatar class="tg__avatar" color="red">JG</v-avatar>
-            <v-avatar class="tg__avatar" color="purple">CT</v-avatar>
+            <v-avatar v-for="player in players" :key="player.id" class="tg__avatar" size="64" color="red lighten-4">
+                <div>{{ player.id.substring(0, 2).toUpperCase() || "##" }}</div>
+                <div><strong>{{ player.score }}</strong></div>
+            </v-avatar>
         </v-row>
         <v-row justify="center">
             <v-card id="tg__typing-game">
@@ -49,8 +50,7 @@
     import Timer from "../shared/Timer"
     import io from "socket.io-client"
 
-    const TIME = 10;
-    console.log(process.env.VUE_APP_SERVER_URL)
+    const TIME = 60;
 
     const socket = io(process.env.VUE_APP_SERVER_URL)
     socket.emit('join', { gameType: "typing", roomNo: 0 })
@@ -76,13 +76,17 @@
         },
         data: function() {
             return {
+                // for typing game
                 wordList: [],
                 currWordIdx: 0,
                 correctWords: 0,
                 incorrectWords: 0,
                 inputText: "",
-                timer: TIME, // 60 seconds
-                timerStarted: false
+                // for timer
+                timer: TIME,
+                timerStarted: false,
+                // for real-time user score bar
+                players: [{ id: 'Alice', score: 50 }, { id: 'Bob', score: 60 }, { id: 'Charlie', score: 70 }]
             }
         },
         computed: {
@@ -159,6 +163,7 @@
 
     .tg__avatar {
         margin: 8px;
+        flex-direction: column;
     }
     #tg__typing-game {
         padding: 16px;
