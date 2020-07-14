@@ -1,5 +1,5 @@
 <template>
-    <v-container fluid id="container">
+    <v-container fluid id="tg__container">
         <v-dialog v-model="isGameOver" max-width="30%">
             <v-card class="mx-auto" min-height="30%">
                 <v-card-title>
@@ -11,13 +11,14 @@
             </v-card>
         </v-dialog>
         <v-row justify="center">
-            <v-avatar color="pink">KA</v-avatar>
-            <v-avatar color="red">JG</v-avatar>
-            <v-avatar color="purple">CT</v-avatar>
+            <v-avatar v-for="player in players" :key="player.id" class="tg__avatar" size="64" color="red lighten-4">
+                <div>{{ player.id.substring(0, 2).toUpperCase() || "##" }}</div>
+                <div><strong>{{ player.score }}</strong></div>
+            </v-avatar>
         </v-row>
         <v-row justify="center">
-            <v-card id="typing-game">
-                <div id="text-display"></div>
+            <v-card id="tg__typing-game">
+                <div id="tg__text-display"></div>
                 <v-text-field
                     outlined
                     :disabled="isGameOver"
@@ -38,7 +39,7 @@
                 <v-btn text>{{ incorrectWords }} mistyped</v-btn>
             </v-col>
             <v-col>
-                <v-btn text>{{ timer }} seconds left</v-btn>
+                <v-btn text><Timer inline :initial="timer" :frozen="!timerStarted" @timerValue="handleTime" /></v-btn>
             </v-col>
         </v-row>
     </v-container>
@@ -46,10 +47,10 @@
 
 <script>
     import wordBank from "./text/text"
+    import Timer from "../shared/Timer"
     import io from "socket.io-client"
 
-    const TIME = 10;
-    console.log(process.env.VUE_APP_SERVER_URL)
+    const TIME = 60;
 
     const socket = io(process.env.VUE_APP_SERVER_URL)
     socket.emit('join', { gameType: "typing", roomNo: 0 })
@@ -69,15 +70,23 @@
     })
 
     export default {
+        name: "TypingGame",
+        components: {
+            Timer
+        },
         data: function() {
             return {
+                // for typing game
                 wordList: [],
                 currWordIdx: 0,
                 correctWords: 0,
                 incorrectWords: 0,
                 inputText: "",
-                timer: TIME, // 60 seconds
-                timerStarted: false
+                // for timer
+                timer: TIME,
+                timerStarted: false,
+                // for real-time user score bar
+                players: [{ id: 'Alice', score: 50 }, { id: 'Bob', score: 60 }, { id: 'Charlie', score: 70 }]
             }
         },
         computed: {
@@ -100,32 +109,32 @@
                 this.wordList = Array.from(wordBank.pap)
             },
             showText: function() {
-                const textDisplay = document.getElementById('text-display')
+                const textDisplay = document.getElementById('tg__text-display')
                 this.wordList.forEach(word => {
                     const span = document.createElement("span")
                     span.innerText = word + " "
                     textDisplay.appendChild(span)
                 })
-                textDisplay.firstChild.classList.add('highlighted')
+                textDisplay.firstChild.classList.add('tg--highlighted')
             },
             handleInput: function() {
-                const textDisplay = document.getElementById('text-display')
+                const textDisplay = document.getElementById('tg__text-display')
                 const idx = this.currWordIdx
                 const words = this.wordList
 
                 // correct input
                 if (this.inputText === words[idx]) {
                     this.correctWords++
-                    textDisplay.childNodes.item(idx).classList.add('correct')
+                    textDisplay.childNodes.item(idx).classList.add('tg--correct')
                 }
                 // incorrect input
                 else {
                     this.incorrectWords++
-                    textDisplay.childNodes.item(idx).classList.add('incorrect')
+                    textDisplay.childNodes.item(idx).classList.add('tg--incorrect')
                 }
                 // highlight the next word (if any)
                 if (idx < words.length - 1) {
-                    textDisplay.childNodes.item(idx + 1).classList.add('highlighted')
+                    textDisplay.childNodes.item(idx + 1).classList.add('tg--highlighted')
                 }
 
                 this.inputText = ""
@@ -133,17 +142,13 @@
             },
             handleStart: function() {
                 if (!this.timerStarted) {
-                    this.countDownTimer(this.timer)
-                    this.timerStarted = false
+                    this.timerStarted = true
                 }
             },
-            countDownTimer: function(time) {
-                this.timer = time
-                if (time > 0) {
-                    setTimeout(() => {
-                        socket.emit('typing', { gameType: "typing", roomNo: 0, score: this.wpm })
-                        this.countDownTimer(time - 1)
-                    }, 1000)
+            handleTime: function(seconds) {
+                this.timer = seconds
+                if (seconds > 0) {
+                    socket.emit('typing', { gameType: "typing", roomNo: 0, score: this.wpm })
                 } else {
                     socket.emit('complete', { gameType: "typing", roomNo: 0, score: this.wpm })
                     console.log('done!')
@@ -156,7 +161,16 @@
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap');
 
-    #text-display {
+    .tg__avatar {
+        margin: 8px;
+        flex-direction: column;
+    }
+    #tg__typing-game {
+        padding: 16px;
+        margin: 8px;
+        border-radius: 16px;
+    }
+    #tg__text-display {
         font-family: 'Courier Prime', monospace;
         height: 40vh;
         margin: 8px;
@@ -164,24 +178,16 @@
         overflow: scroll;
         overflow-x: hidden;
     }
-    #typing-game {
-        padding: 16px;
-        margin: 8px;
-        border-radius: 16px;
-    }
-    #container {
+    #tg__container {
         width: 50%;
     }
-    .highlighted {
+    .tg--highlighted {
         color: blueviolet;
     }
-    .correct {
+    .tg--correct {
         color: green;
     }
-    .incorrect {
+    .tg--incorrect {
         color: crimson;
-    }
-    .v-avatar {
-        margin: 8px;
     }
 </style>
