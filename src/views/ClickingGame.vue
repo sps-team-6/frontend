@@ -1,12 +1,23 @@
 <template>
-  <div class="clicking-game">
+  <v-container fluid id="container">
+    <!-- <v-dialog v-model="isGameOver" max-width="30%">
+      <v-card class="mx-auto" min-height="30%">
+        <v-card-title>
+          <p class="display-1 text--primary">Results</p>
+        </v-card-title>
+        <v-card-subtitle>
+          <p class="text-primary">Game over! Your final score: {{ score }}</p>
+        </v-card-subtitle>
+      </v-card>
+    </v-dialog> -->
+
     <div class="a">
       <h1>Click this button as fast as possible!</h1>
     </div>
 
-    <div class="counter">
-      <h2>Count:</h2>
-      <div ref="countValue" id="countValue"><h2>{{ count }}</h2></div>
+    <div class="score">
+      <h2>Score:</h2>
+      <div ref="scoreValue" id="scoreValue"><h2>{{ score }}</h2></div>
       <button v-on:click="checkTimerButton" class="btn btn-primary">Press Me!</button>
     </div>
 
@@ -17,7 +28,7 @@
     <div class="progress-bar">
       <Bars v-bind:bars="bars"></Bars>
     </div>
-  </div>
+  </v-container>
 </template>
 
 <script>
@@ -53,24 +64,30 @@
     },
     data() { // Alternatively, can create a .js data file, but for now this shall suffice.
       return {
-        bars: [
+        bars: [ // TODO: get the list of players from BE.
           { name:"player 1", numClicks: 0, color: "#c7b198" },
           { name:"player 2", numClicks: 56, color: "#dfd3c3" },
           { name:"player 3", numClicks: 74, color: "#f0ece3" }
         ],
-        count: 0,
+        score: 0,
       }
     },
+    computed: {
+    },
     methods: {
-      incrementCount: function() { // TODO: prevent overflows.
-        // this.count++;
-        socket.emit('clicking', { gameType: "clicking", roomNo: 0, score: this.count })
+      incrementScore: function() { // TODO: prevent overflows.
+        this.score++;
+        socket.emit('clicking', { gameType: "clicking", roomNo: 0, score: this.score });
+        // socket.on('typingResponse', function( status, scores ) {
+        //   this.score = scores[0];
+        //   console.log("this.score: " + this.score);
+        // });
         this.bars[0].numClicks += 1;
       },
       checkTimerButton: function() {
         var timerValue = document.getElementById('timer').textContent;
         if (timerValue > 0) {
-          this.incrementCount();
+          this.incrementScore();
         }
       },
       getWinner: function() {
@@ -87,8 +104,7 @@
       },
       checkTimerValue: function(value) {
         if (value == 0) {
-          socket.emit('complete', { gameType: "clicking", roomNo: 0, score: this.count });
-          console.log('game over!');
+          socket.emit('complete', { gameType: "clicking", roomNo: 0, score: this.score });
           alert("Game over! The winner is " + this.getWinner()); 
         }
       }
@@ -108,7 +124,7 @@
     line-height: 1.4;
   }
 
-  .counter {
+  .score {
     padding: 15px;
   }
 
