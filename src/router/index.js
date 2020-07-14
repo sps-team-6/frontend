@@ -2,6 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
 import Login from '../views/Login.vue'
+import Join from '../views/Join.vue'
 
 Vue.use(VueRouter)
 
@@ -13,8 +14,13 @@ Vue.use(VueRouter)
   },
   {
     path: "/login",
-    name: "login",
+    name: "Login",
     component: Login
+  },
+  {
+    path: "/join",
+    name: "Join",
+    component: Join
   },
 ]
 

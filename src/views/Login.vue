@@ -4,7 +4,9 @@
     <br><br>
     <input type="text" name="username" v-model="input.username" placeholder="Username">
     <br><br>
-    <button type ="button">Create Group</button> <button type = "button">Join Group</button>
+    <v-btn type ="button">Create Group</v-btn> 
+    <div id="divider"></div>
+    <v-btn @click="$router.push('join')">Join Group</v-btn>
   </div>
 </template>
 
@@ -19,6 +21,14 @@
                 }
             }
         },
+        join(){
+            if (this.input.username != ""){
+                this.Vuerouter.push({ path: '/join'});
+            }
+            else{
+                console.log("Pls enter a username");
+            }
+        }
     }
 </script>
 
@@ -33,5 +43,12 @@
     }
     #button{
         border-color: black;
+        block-size:auto;
+        color:grey;
+    }
+    #divider{
+    width:100px;
+    height:auto;
+    display:inline-block;
     }
 </style>
