@@ -1,34 +1,37 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
+import Login from '../views/Login.vue'
 import ClickingGame from '../views/ClickingGame.vue'
+import TypingGame from '../components/TypingGame/TypingGame.vue'
+
 
 Vue.use(VueRouter)
 
   const routes = [
   {
-    path: '/',
+    path: "/",
+    name: "Login",
+    components: {
+      // https://router.vuejs.org/guide/essentials/named-views.html
+      default: Login
+    }
+  },
+  {
+    path: '/home',
     name: 'Home',
     component: Home
   },
   {
     path: '/typing',
     name: 'Typing',
-    component: () => import(/* webpackChunkName: "typing" */ '../components/TypingGame/TypingGame.vue')
-  },
-  {
-    path: '/about',
-    name: 'About',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
+    component: TypingGame
   },
   {
     path: '/clicking-game',
     name: 'ClickingGame',
     component: ClickingGame
-  },
+  }
 ]
 
 const router = new VueRouter({

@@ -1,35 +1,29 @@
 <template>
   <v-app id="app">
+    <!-- for Material Icon usage. Don't remove -->
     <link href="https://fonts.googleapis.com/css?family=Material+Icons" rel="stylesheet">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link> |
-      <router-link to="/typing">Typing Game</router-link> |
-      <router-link to="/clicking-game">Clicking Game</router-link>
-    </div>
-    <router-view/>
+
+    <v-app-bar dark dense app v-if="this.$route.path !== '/'">
+      <router-link to="/home">
+        <v-btn icon>
+          <v-icon large>home</v-icon>
+        </v-btn>
+      </router-link>
+    </v-app-bar>
+
+    <!-- Sizes your content based upon application components -->
+    <v-main>
+      <!-- Provides the application the proper gutter -->
+      <router-view name="default" />
+    </v-main>
   </v-app>
 </template>
 
 <style>
-  #app {
-    font-family: Avenir, Helvetica, Arial, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-align: center;
-    color: #2c3e50;
-  }
-
-  #nav {
-    padding: 30px;
-  }
-
-  #nav a {
-    font-weight: bold;
-    color: #2c3e50;
-  }
-
-  #nav a.router-link-exact-active {
-    color: #42b983;
-  }
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+}
 </style>
