@@ -10,14 +10,17 @@ Vue.use(VueRouter)
 
   const routes = [
   {
+    path: "/",
+    name: "Login",
+    components: {
+      // https://router.vuejs.org/guide/essentials/named-views.html
+      default: Login
+    }
+  },
+  {
     path: '/home',
     name: 'Home',
     component: Home
-  },
-  {
-    path: "/",
-    name: "Login",
-    component: Login
   },
   {
     path: '/typing',

@@ -2,12 +2,11 @@
   <div id="login">
     <h1>Login</h1>
     <br><br>
-    <input type="text" name="username" v-model="input.username" placeholder="Username">
+    <v-text-field outlined v-model="input.username" placeholder="Username"></v-text-field>
     <br><br>
     <v-btn v-on:click="login()">Login</v-btn>
   </div>
 </template>
-
 
 <script>
     export default {
@@ -21,11 +20,11 @@
         },
         methods:{
             login(){
-                if (this.input.username != ""){
+                if (this.input.username !== ""){
                     this.$router.replace('/home');
                 }
                 else{
-                    window.alert("Pls enter a username");
+                    window.alert("Please enter a username");
                 }
             }
         }
@@ -40,15 +39,5 @@
         margin: auto;
         margin-top: 200px;
         padding: 20px;
-    }
-    #button{
-        border-color: black;
-        block-size:auto;
-        color:grey;
-    }
-    #divider{
-    width:100px;
-    height:auto;
-    display:inline-block;
     }
 </style>
