@@ -179,7 +179,7 @@
         overflow-x: hidden;
     }
     #tg__container {
-        width: 50%;
+        width: 70%;
     }
     .tg--highlighted {
         color: blueviolet;

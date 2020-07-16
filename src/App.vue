@@ -1,10 +1,23 @@
 <template>
-  <div id="app">
-    <router-link to="/"></router-link>
-    <router-view/>
-  </div>
-</template>
+  <v-app id="app">
+    <!-- for Material Icon usage. Don't remove -->
+    <link href="https://fonts.googleapis.com/css?family=Material+Icons" rel="stylesheet">
 
+    <v-app-bar dark dense app v-if="this.$route.path !== '/'">
+      <router-link to="/home">
+        <v-btn icon>
+          <v-icon large>home</v-icon>
+        </v-btn>
+      </router-link>
+    </v-app-bar>
+
+    <!-- Sizes your content based upon application components -->
+    <v-main>
+      <!-- Provides the application the proper gutter -->
+      <router-view name="default" />
+    </v-main>
+  </v-app>
+</template>
 
 <style>
 #app {
@@ -13,31 +26,4 @@
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
 }
-
-#nav {
-  list-style-type: none;
-  margin: 0;
-  padding:10px;
-  overflow: hidden;
-  background-color: rgb(68, 64, 64);
-
-}
-#nav a{
-  color: white;
-  text-align: left;
-  padding: 5%;
-  text-decoration: none;
-}
-#v-btn{
-    color :grey;
-    border: grey;
-    width: 20px;
-    height: 20px;
-}
-#divider{
-    width:800px;
-    height:auto;
-    display:inline-block;
- }
-
 </style>
