@@ -1,35 +1,43 @@
 <template>
-  <v-app id="app">
-    <link href="https://fonts.googleapis.com/css?family=Material+Icons" rel="stylesheet">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link> |
-      <router-link to="/typing">Typing Game</router-link> |
-      <router-link to="/clicking-game">Clicking Game</router-link>
-    </div>
+  <div id="app">
+    <router-link to="/"></router-link>
     <router-view/>
-  </v-app>
+  </div>
 </template>
 
+
 <style>
-  #app {
-    font-family: Avenir, Helvetica, Arial, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-align: center;
-    color: #2c3e50;
-  }
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+}
 
-  #nav {
-    padding: 30px;
-  }
+#nav {
+  list-style-type: none;
+  margin: 0;
+  padding:10px;
+  overflow: hidden;
+  background-color: rgb(68, 64, 64);
 
-  #nav a {
-    font-weight: bold;
-    color: #2c3e50;
-  }
+}
+#nav a{
+  color: white;
+  text-align: left;
+  padding: 5%;
+  text-decoration: none;
+}
+#v-btn{
+    color :grey;
+    border: grey;
+    width: 20px;
+    height: 20px;
+}
+#divider{
+    width:800px;
+    height:auto;
+    display:inline-block;
+ }
 
-  #nav a.router-link-exact-active {
-    color: #42b983;
-  }
 </style>
