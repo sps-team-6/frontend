@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Home from '../views/Home.vue'
+import Lobby from '../views/Lobby.vue'
 import Login from '../views/Login.vue'
 import ClickingGame from '../views/ClickingGame.vue'
 import TypingGame from '../components/TypingGame/TypingGame.vue'
@@ -18,14 +18,16 @@ Vue.use(VueRouter)
     }
   },
   {
-    path: '/home',
-    name: 'Home',
-    component: Home
+    path: '/lobby',
+    name: 'lobby',
+    component: Lobby
   },
   {
-    path: '/typing',
+    path: '/typing/:roomNo',
     name: 'Typing',
-    component: TypingGame
+    component: TypingGame,
+    // When props is set to true, the route.params will be set as the component props.
+    props: true
   },
   {
     path: '/clicking-game',
