@@ -103,7 +103,7 @@
         return playerName;
       },
       checkTimerValue: function(value) {
-        if (value == 0) {
+        if (value === 0) {
           socket.emit('complete', { gameType: "clicking", roomNo: 0, score: this.score });
           alert("Game over! The winner is " + this.getWinner()); 
         }

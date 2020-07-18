@@ -12,7 +12,7 @@
         </v-dialog>
         <v-row justify="center">
             <v-avatar v-for="player in players" :key="player.id" class="tg__avatar" size="64" color="red lighten-4">
-                <div>{{ player.id.substring(0, 2).toUpperCase() || "##" }}</div>
+                <div>{{ player.name.substring(0, 2).toUpperCase() || "##" }}</div>
                 <div><strong>{{ player.score }}</strong></div>
             </v-avatar>
         </v-row>
@@ -51,29 +51,14 @@
     import io from "socket.io-client"
 
     const TIME = 60;
-
     const socket = io(process.env.VUE_APP_SERVER_URL)
-    socket.emit('join', { gameType: "typing", roomNo: 0 })
-    socket.emit('ready', { gameType: "typing", roomNo: 0 })
-
-    socket.on('joinStatus', res => {
-        console.log(res)
-    })
-    socket.on('readyStatus', res => {
-        console.log(res)
-    })
-    socket.on('typingResponse', res => {
-        console.log(res)
-    })
-    socket.on('completeResponse', res => {
-        console.log(res)
-    })
 
     export default {
         name: "TypingGame",
         components: {
             Timer
         },
+        props: ['roomNo'],
         data: function() {
             return {
                 // for typing game
@@ -86,23 +71,44 @@
                 timer: TIME,
                 timerStarted: false,
                 // for real-time user score bar
-                players: [{ id: 'Alice', score: 50 }, { id: 'Bob', score: 60 }, { id: 'Charlie', score: 70 }]
+                players: [],
             }
         },
         computed: {
             wpm: function() {
-                const timeInMins = ((TIME - this.timer) / 60) || 1
-                return Math.floor(this.correctWords / timeInMins)
+                const elapsedMins = ((TIME - this.timer) / 60) || 1
+                return Math.floor(this.correctWords / elapsedMins)
             },
             isGameOver: function() {
                 return this.timer <= 0 || this.currWordIdx >= this.wordList.length
             }
+        },
+        created: function() {
+            console.log('joined typing game, room: ', this.roomNo)
+            socket.on('joinStatus', res => {
+                console.log(res)
+            })
+            socket.on('readyStatus', res => {
+                // TODO: May have to change to object to ensure accuracy
+                this.players = res.readyPlayers.map(id => ({ id, name: 'Anon', score: 0 }))
+            })
+            socket.on('typingResponse', res => {
+                console.log(res)
+            })
+            socket.on('completeResponse', res => {
+                console.log(res)
+            })
+            socket.on('disconnect', () => {
+                console.log('user disconnected')
+            })
         },
         beforeMount: function() {
             this.loadText()
         },
         mounted: function() {
             this.showText()
+            socket.emit('join', { gameType: "typing", roomNo: Number(this.roomNo) })
+            socket.emit('ready', { gameType: "typing", roomNo: Number(this.roomNo) })
         },
         methods: {
             loadText: function() {
