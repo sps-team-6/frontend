@@ -11,6 +11,17 @@
       </v-card>
     </v-dialog>
 
+    <v-dialog v-model="dialogBeforeGame" max-width="30%">
+      <v-card class="mx-auto" min-height="30%">
+        <v-card-title class="headline">Start game?</v-card-title>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="green darken-1" text @click="handleStart">Start</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <v-row justify="center">
       <v-avatar v-for="player in players" :key="player.id" class="tg__avatar" size="64" color="red lighten-4">
         <div>{{ player.name.substring(0, 2).toUpperCase() || "##" }}</div>
@@ -28,10 +39,10 @@
 
     <v-row>
       <v-col>
-          <v-btn text>score: {{ score }}</v-btn>
+        <v-btn text>score: {{ score }}</v-btn>
       </v-col>
       <v-col>
-          <v-btn text>timer: <Timer inline :initial="timer" @timerValue="handleTime" /></v-btn>
+        <v-btn text>timer: <Timer inline :initial="timer" :frozen="!timerStarted" @timerValue="handleTime" /></v-btn>
       </v-col>
     </v-row>
 
@@ -68,6 +79,7 @@
         timerStarted: false,
         // for real-time user score bar
         players: [],
+        dialogBeforeGame: true,
       }
     },
     computed: {
@@ -82,7 +94,7 @@
       })
       socket.on('readyStatus', res => {
           // TODO: May have to change to object to ensure accuracy
-          this.players = res.readyPlayers.map(id => ({ id, name: 'Bobi', score: 0 }))
+          this.players = res.readyPlayers.map(id => ({ id, name: 'Anon', score: 0 }))
       })
       socket.on('clickingResponse', res => {
           console.log(res)
@@ -108,6 +120,10 @@
         if (timerValue > 0) {
           this.incrementScore();
         }
+      },
+      handleStart: function() {
+        this.dialogBeforeGame = false;
+        this.timerStarted = true;
       },
       handleTime: function(seconds) {
         this.timer = seconds
