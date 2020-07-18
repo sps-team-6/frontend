@@ -2,7 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Lobby from '../views/Lobby.vue'
 import Login from '../views/Login.vue'
-import ClickingGame from '../views/ClickingGame.vue'
+import ClickingGame from '../components/clickinggame/ClickingGame.vue'
 import TypingGame from '../components/TypingGame/TypingGame.vue'
 
 
@@ -30,9 +30,10 @@ Vue.use(VueRouter)
     props: true
   },
   {
-    path: '/clicking-game',
+    path: '/clicking/:roomNo',
     name: 'ClickingGame',
-    component: ClickingGame
+    component: ClickingGame,
+    props: true
   }
 ]
 

@@ -1,6 +1,6 @@
 <template>
   <v-container fluid id="container">
-    <!-- <v-dialog v-model="isGameOver" max-width="30%">
+    <v-dialog v-model="isGameOver" max-width="30%">
       <v-card class="mx-auto" min-height="30%">
         <v-card-title>
           <p class="display-1 text--primary">Results</p>
@@ -9,21 +9,24 @@
           <p class="text-primary">Game over! Your final score: {{ score }}</p>
         </v-card-subtitle>
       </v-card>
-    </v-dialog> -->
+    </v-dialog>
 
     <div class="a">
       <h1>Click this button as fast as possible!</h1>
     </div>
 
     <div class="score">
-      <h2>Score:</h2>
-      <div ref="scoreValue" id="scoreValue"><h2>{{ score }}</h2></div>
-      <button v-on:click="checkTimerButton" class="btn btn-primary">Press Me!</button>
+      <button v-on:click="incrementScore" :disabled="isGameOver" class="btn btn-primary">Press Me!</button>
     </div>
 
-    <div class="timer">
-      <Timer @timerValue="checkTimerValue"></Timer>
-    </div>
+    <v-row>
+      <v-col>
+          <v-btn text>score: {{ score }}</v-btn>
+      </v-col>
+      <v-col>
+          <v-btn text>timer: <Timer inline :initial="timer" @timerValue="handleTime" /></v-btn>
+      </v-col>
+    </v-row>
 
     <div class="progress-bar">
       <Bars v-bind:bars="bars"></Bars>
@@ -32,29 +35,13 @@
 </template>
 
 <script>
-  import Bars from '../components/clickinggame/Bars';
-  import Timer from '../components/clickinggame/Timer';
+  import Bars from './Bars';
+  import Timer from "../shared/Timer";
 
   import io from "socket.io-client";
 
-  console.log(process.env.VUE_APP_SERVER_URL)
-
+  const TIME = 10;
   const socket = io(process.env.VUE_APP_SERVER_URL)
-  socket.emit('join', { gameType: "clicking", roomNo: 0 })
-  socket.emit('ready', { gameType: "clicking", roomNo: 0 })
-
-  socket.on('joinStatus', res => {
-      console.log(res)
-  })
-  socket.on('readyStatus', res => {
-      console.log(res)
-  })
-  socket.on('typingResponse', res => {
-      console.log(res)
-  })
-  socket.on('completeResponse', res => {
-      console.log(res)
-  })
 
   export default {
     name: 'ClickingGame',
@@ -66,22 +53,46 @@
       return {
         bars: [ // TODO: get the list of players from BE.
           { name:"player 1", numClicks: 0, color: "#c7b198" },
-          { name:"player 2", numClicks: 56, color: "#dfd3c3" },
-          { name:"player 3", numClicks: 74, color: "#f0ece3" }
         ],
         score: 0,
+        // for timer
+        timer: TIME,
+        timerStarted: false,
+        // for real-time user score bar
+        players: [],
       }
     },
     computed: {
+      isGameOver: function() {
+          return this.timer <= 0;
+      }
+    },
+    created: function() {
+      console.log('joined clicking game, room: ', this.roomNo)
+      socket.on('joinStatus', res => {
+          console.log(res)
+      })
+      socket.on('readyStatus', res => {
+          // TODO: May have to change to object to ensure accuracy
+          this.players = res.readyPlayers.map(id => ({ id, name: 'Anon', score: 0 }))
+      })
+      socket.on('clickingResponse', res => {
+          console.log(res)
+      })
+      socket.on('completeResponse', res => {
+          console.log(res)
+      })
+      socket.on('disconnect', () => {
+          console.log('user disconnected')
+      })
+    },
+    mounted: function() {
+      socket.emit('join', { gameType: "clicking", roomNo: Number(this.roomNo) })
+      socket.emit('ready', { gameType: "clicking", roomNo: Number(this.roomNo) })
     },
     methods: {
       incrementScore: function() { // TODO: prevent overflows.
         this.score++;
-        socket.emit('clicking', { gameType: "clicking", roomNo: 0, score: this.score });
-        // socket.on('typingResponse', function( status, scores ) {
-        //   this.score = scores[0];
-        //   console.log("this.score: " + this.score);
-        // });
         this.bars[0].numClicks += 1;
       },
       checkTimerButton: function() {
@@ -102,10 +113,13 @@
         }
         return playerName;
       },
-      checkTimerValue: function(value) {
-        if (value === 0) {
-          socket.emit('complete', { gameType: "clicking", roomNo: 0, score: this.score });
-          alert("Game over! The winner is " + this.getWinner()); 
+      handleTime: function(seconds) {
+        this.timer = seconds
+        if (seconds > 0) {
+            socket.emit('clicking', { gameType: "clicking", roomNo: 0, score: this.score })
+        } else {
+            socket.emit('complete', { gameType: "clicking", roomNo: 0, score: this.score })
+            console.log('done!')
         }
       }
     },
