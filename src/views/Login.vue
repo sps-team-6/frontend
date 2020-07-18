@@ -21,7 +21,7 @@
         methods:{
             login(){
                 if (this.input.username !== ""){
-                    this.$router.replace('/home');
+                    this.$router.replace('/lobby');
                 }
                 else{
                     window.alert("Please enter a username");
