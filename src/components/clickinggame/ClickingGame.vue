@@ -11,11 +11,18 @@
       </v-card>
     </v-dialog>
 
-    <div class="a">
+    <v-row justify="center">
+      <v-avatar v-for="player in players" :key="player.id" class="tg__avatar" size="64" color="red lighten-4">
+        <div>{{ player.name.substring(0, 2).toUpperCase() || "##" }}</div>
+        <div><strong>{{ player.score }}</strong></div>
+      </v-avatar>
+    </v-row>
+
+    <div>
       <h1>Click this button as fast as possible!</h1>
     </div>
 
-    <div class="score">
+    <div>
       <button v-on:click="incrementScore" :disabled="isGameOver" class="btn btn-primary">Press Me!</button>
     </div>
 
@@ -49,6 +56,7 @@
       Bars,
       Timer,
     },
+    props: ['roomNo'],
     data() { // Alternatively, can create a .js data file, but for now this shall suffice.
       return {
         bars: [ // TODO: get the list of players from BE.
@@ -74,7 +82,7 @@
       })
       socket.on('readyStatus', res => {
           // TODO: May have to change to object to ensure accuracy
-          this.players = res.readyPlayers.map(id => ({ id, name: 'Anon', score: 0 }))
+          this.players = res.readyPlayers.map(id => ({ id, name: 'Bobi', score: 0 }))
       })
       socket.on('clickingResponse', res => {
           console.log(res)
@@ -101,24 +109,12 @@
           this.incrementScore();
         }
       },
-      getWinner: function() {
-        var max = 0;
-        var playerName = "";
-        for (var i = 0; i < this.bars.length; i++) {
-          var bar = this.bars[i];
-          if (bar.numClicks > max) {
-            max = bar.numClicks;
-            playerName = bar.name;
-          }
-        }
-        return playerName;
-      },
       handleTime: function(seconds) {
         this.timer = seconds
         if (seconds > 0) {
-            socket.emit('clicking', { gameType: "clicking", roomNo: 0, score: this.score })
+            socket.emit('clicking', { gameType: "clicking", roomNo: this.roomNo, score: this.score })
         } else {
-            socket.emit('complete', { gameType: "clicking", roomNo: 0, score: this.score })
+            socket.emit('complete', { gameType: "clicking", roomNo: this.roomNo, score: this.score })
             console.log('done!')
         }
       }
@@ -136,10 +132,6 @@
   body {
     font-family: Arial, Helvetica, sans-serif;
     line-height: 1.4;
-  }
-
-  .score {
-    padding: 15px;
   }
 
   .btn {
