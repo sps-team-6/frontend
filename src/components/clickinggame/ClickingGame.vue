@@ -90,21 +90,23 @@
     created: function() {
       console.log('joined clicking game, room: ', this.roomNo)
       socket.on('joinStatus', res => {
-          console.log(res)
+        console.log(res)
       })
       socket.on('readyStatus', res => {
-          // TODO: May have to change to object to ensure accuracy
-          this.players = res.readyPlayers.map(id => ({ id, name: 'Anon', score: 0 }))
+        // TODO: May have to change to object to ensure accuracy
+        this.players = res.readyPlayers.map(id => ({ id, name: 'Anon', score: 0 }))
       })
       socket.on('clickingResponse', res => {
-          console.log(res)
+        console.log(res)
       })
       socket.on('completeResponse', res => {
-          console.log(res)
+        console.log(res)
       })
       socket.on('disconnect', () => {
-          console.log('user disconnected')
+        console.log('user disconnected')
       })
+
+      this.handleDialogAndTimerBeforeGame();
     },
     mounted: function() {
       socket.emit('join', { gameType: "clicking", roomNo: Number(this.roomNo) })
@@ -121,16 +123,25 @@
           this.incrementScore();
         }
       },
+      handleDialogAndTimerBeforeGame: function() {
+        socket.on('dialogBeforeGame', res => {
+          this.dialogBeforeGame = res
+        })
+
+        socket.on('timerStarted', res => {
+          this.timerStarted = res
+        })
+      },
       handleStart: function() {
-        this.dialogBeforeGame = false;
-        this.timerStarted = true;
+        socket.emit('beforeClicking', { gameType: "clicking", roomNo:Number(this.roomNo) });
+        this.handleDialogAndTimerBeforeGame();
       },
       handleTime: function(seconds) {
         this.timer = seconds
         if (seconds > 0) {
-            socket.emit('clicking', { gameType: "clicking", roomNo: this.roomNo, score: this.score })
+            socket.emit('clicking', { gameType: "clicking", roomNo: Number(this.roomNo), score: this.score })
         } else {
-            socket.emit('complete', { gameType: "clicking", roomNo: this.roomNo, score: this.score })
+            socket.emit('complete', { gameType: "clicking", roomNo: Number(this.roomNo), score: this.score })
             console.log('done!')
         }
       }
