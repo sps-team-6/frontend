@@ -103,8 +103,7 @@
                 const currPlayers = this.rooms[this.ROOM_NAMES.clicking][roomNo]['currentPlayersCount']
                 const maxPlayers = this.rooms[this.ROOM_NAMES.clicking][roomNo]['maxPlayersCount']
                 if (currPlayers < maxPlayers) {
-                    // this.$router.push({ path: `/typing/${roomNo}`})
-                    // TODO: replace with route of your choice
+                    this.$router.push({ path: `/clicking/${roomNo}`})
                 } else {
                     this.roomFullDialog = true
                 }
