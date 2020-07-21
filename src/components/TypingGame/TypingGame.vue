@@ -83,7 +83,7 @@
     import Timer from "../shared/Timer"
     import io from "socket.io-client"
 
-    const TIME = 20;
+    const TIME = 60;
     const socket = io(process.env.VUE_APP_SERVER_URL)
 
     export default {
