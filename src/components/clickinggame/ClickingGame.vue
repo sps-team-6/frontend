@@ -1,5 +1,21 @@
 <template>
   <v-container fluid id="container">
+    <v-app-bar dark dense app>
+      <router-link :to="'/lobby/' + userToken">
+        <v-btn icon>
+          <v-icon large>home</v-icon>
+        </v-btn>
+      </router-link>
+      <v-spacer></v-spacer>
+      <v-icon>account_circle</v-icon>
+      <div class="ml-2">{{ userToken }}</div>
+      <router-link to="/">
+        <v-btn icon>
+          <v-icon>fingerprint</v-icon>
+        </v-btn>
+      </router-link>
+    </v-app-bar>
+
     <v-dialog v-model="isGameOver" max-width="30%">
       <v-card class="mx-auto" min-height="30%">
         <v-card-title>
@@ -67,7 +83,7 @@
       Bars,
       Timer,
     },
-    props: ['roomNo'],
+    props: ['userToken', 'roomNo'],
     data() { // Alternatively, can create a .js data file, but for now this shall suffice.
       return {
         bars: [ // TODO: get the list of players from BE.

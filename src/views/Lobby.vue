@@ -1,5 +1,21 @@
 <template>
   <v-container fluid class="home__container">
+      <v-app-bar dark dense app>
+          <router-link :to="'/lobby/' + userToken">
+              <v-btn icon>
+                  <v-icon large>home</v-icon>
+              </v-btn>
+          </router-link>
+          <v-spacer></v-spacer>
+          <v-icon>account_circle</v-icon>
+          <div class="ml-2">{{ userToken }}</div>
+          <router-link to="/">
+              <v-btn icon>
+                  <v-icon>fingerprint</v-icon>
+              </v-btn>
+          </router-link>
+      </v-app-bar>
+
     <v-dialog v-model="roomFullDialog" max-width="30%">
       <v-card>
         <v-card-title>Can't join room</v-card-title>
@@ -17,7 +33,7 @@
         </v-btn>
         <div class="home__rooms" v-if="isRoomsTyping">
           <div :key="idx" v-for="(room, idx) in rooms[ROOM_NAMES.typing]">
-            <v-btn class="room__btn" color="red lighten-5" @click="joinTypingRoom(room.roomNo)">
+            <v-btn class="room__btn" color="red lighten-5" @click="joinTypingRoom(userToken, room.roomNo)">
               Room {{ room.roomNo }}
             </v-btn>
             <span>{{ room.currentPlayersCount }}/{{ room.maxPlayersCount }} players</span>
@@ -40,7 +56,7 @@
         </v-btn>
         <div class="home__rooms" v-if="isRoomsClicking">
           <div :key="idx" v-for="(room, idx) in rooms[ROOM_NAMES.clicking]">
-            <v-btn class="room__btn" color="cyan lighten-5" @click="joinClickingRoom(room.roomNo)">
+            <v-btn class="room__btn" color="cyan lighten-5" @click="joinClickingRoom(userToken, room.roomNo)">
               Room {{ room.roomNo }}
             </v-btn>
             <span>{{ room.currentPlayersCount }}/{{ room.maxPlayersCount }} players</span>
@@ -60,6 +76,7 @@
 <script>
     export default {
         name: 'Lobby',
+        props: ['userToken'],
         data: function () {
             return {
                 isRoomsTyping: false,
@@ -83,7 +100,7 @@
                         this.rooms = newRooms
                     })
             },
-            joinTypingRoom: async function(roomNo) {
+            joinTypingRoom: async function(userToken, roomNo) {
                 // get the latest data before trying to enter
                 await this.getRooms()
                 console.log('joining typing roomNo:', roomNo)
@@ -91,19 +108,19 @@
                 const currPlayers = this.rooms[this.ROOM_NAMES.typing][roomNo]['currentPlayersCount']
                 const maxPlayers = this.rooms[this.ROOM_NAMES.typing][roomNo]['maxPlayersCount']
                 if (currPlayers < maxPlayers) {
-                    this.$router.push({ path: `/typing/${roomNo}`})
+                    this.$router.push({ path: `/typing/${userToken}/${roomNo}`})
                 } else {
                     this.roomFullDialog = true
                 }
             },
-            joinClickingRoom: async function(roomNo) {
+            joinClickingRoom: async function(userToken, roomNo) {
                 await this.getRooms()
                 console.log('joining clicking roomNo:', roomNo)
                 console.log('current room status:', this.rooms)
                 const currPlayers = this.rooms[this.ROOM_NAMES.clicking][roomNo]['currentPlayersCount']
                 const maxPlayers = this.rooms[this.ROOM_NAMES.clicking][roomNo]['maxPlayersCount']
                 if (currPlayers < maxPlayers) {
-                    this.$router.push({ path: `/clicking/${roomNo}`})
+                    this.$router.push({ path: `/clicking/${userToken}/${roomNo}`})
                 } else {
                     this.roomFullDialog = true
                 }
