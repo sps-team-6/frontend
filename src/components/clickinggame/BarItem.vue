@@ -13,7 +13,7 @@
 <script>
 export default {
   name: "BarItem",
-  props: ['bar'],
+  props: ['bar', 'userToken'],
   methods: {
     updateWidth: function(bar) {
       var valueToReduce = 10; // To prevent the bar from increasing too quickly.
