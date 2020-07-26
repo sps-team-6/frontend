@@ -176,7 +176,7 @@
     },
     methods: {
       updateWidth: function(player) {
-        var valueToReduce = 10; // To prevent the bar from increasing too quickly.
+        var valueToReduce = 7; // To prevent the bar from increasing too quickly.
         return player.score - valueToReduce +'%';
       },
       incrementScore: function() { // TODO: prevent overflows.
