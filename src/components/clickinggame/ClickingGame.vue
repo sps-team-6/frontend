@@ -16,33 +16,24 @@
       </router-link>
     </v-app-bar>
 
-    <v-dialog v-model="isGameOver" max-width="30%">
+    <v-dialog v-model="isDialog" max-width="30%">
       <v-card class="mx-auto" min-height="30%">
         <v-card-title>
           <p class="display-1 text--primary">Results</p>
         </v-card-title>
         <v-card-subtitle>
-          <p class="text-primary">Game over! Your final score: {{ score }}</p>
+          <p class="text-primary">Game over! Winner: {{ winner["userId"] }}</p>
         </v-card-subtitle>
       </v-card>
     </v-dialog>
 
-    <v-dialog v-model="dialogBeforeGame" max-width="30%">
-      <v-card class="mx-auto" min-height="30%">
-        <v-card-title class="headline">Start game?</v-card-title>
-
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="green darken-1" text @click="handleStart">Start</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
     <v-row justify="center">
-      <v-avatar v-for="player in players" :key="player.id" class="tg__avatar" size="64" color="red lighten-4">
-        <div>{{ player.name.substring(0, 2).toUpperCase() || "##" }}</div>
-        <div><strong>{{ player.score }}</strong></div>
-      </v-avatar>
+        <v-avatar v-for="player in players" :key="player.id" class="tg__avatar" size="128" :color="player.group === 1 ? 'red' : 'blue'">
+            <div>{{ player.userToken.substring(0, 2).toUpperCase() || "##" }}</div>
+            <div>Score: {{ player.score }}</div>
+            <div>{{ player.ready ? 'Ready' : 'Not ready' }}</div>
+            <div>Group: {{ player.group }}</div>
+        </v-avatar>
     </v-row>
 
     <div>
@@ -60,97 +51,136 @@
       <v-col>
         <v-btn text>timer: <Timer inline :initial="timer" :frozen="!timerStarted" @timerValue="handleTime" /></v-btn>
       </v-col>
+      <v-col>
+          <v-btn v-on:click="onReady()" :color="this.isReady ? 'green' : 'red'">Ready</v-btn>
+      </v-col>
     </v-row>
 
     <div class="progress-bar">
-      <Bars v-bind:bars="bars"></Bars>
+      <div v-for="player in players" :key="player.id">
+        <div class="progress" v-bind:style= "{'background':activeColor, 'width':updateWidth(player)}" ></div>
+        <span class="num-clicks">{{player.score}}</span>
+        <div class="player-name">
+          {{player.userToken}}
+        </div>
+      </div>
     </div>
+
+    <v-snackbar v-model="isSnackbar" :timeout="1000">
+        Game started!
+        <template v-slot:action="{ attrs }">
+            <v-btn
+                color="blue"
+                text
+                v-bind="attrs"
+                @click="isSnackbar=false"
+            >
+                Close
+            </v-btn>
+        </template>
+    </v-snackbar>
   </v-container>
 </template>
 
 <script>
-  import Bars from './Bars';
   import Timer from "../shared/Timer";
-
   import io from "socket.io-client";
 
-  const TIME = 10;
+  const TIME = 15;
   const socket = io(process.env.VUE_APP_SERVER_URL)
 
   export default {
     name: 'ClickingGame',
     components: {
-      Bars,
       Timer,
     },
     props: ['userToken', 'roomNo'],
-    data() { // Alternatively, can create a .js data file, but for now this shall suffice.
+    data() { 
       return {
-        bars: [ // TODO: get the list of players from BE.
-          { name:"player 1", numClicks: 0, color: "#c7b198" },
-        ],
+        activeColor: 'teal',
         score: 0,
         // for timer
         timer: TIME,
         timerStarted: false,
+        isSnackbar: false,
+        isDialog: false,
         // for real-time user score bar
         players: [],
-        dialogBeforeGame: true,
+        isReady: false,
+        winner: {}
       }
     },
     computed: {
-      isGameOver: function() {
-          return this.timer <= 0;
+      isGameOver: {
+          get: function() {
+              return this.timer <= 0
+          },
+          set: function(value) {
+              this.isGameOver = value
+          }
       }
     },
     created: function() {
       console.log('joined clicking game, room: ', this.roomNo)
       socket.on('joinStatus', res => {
-        console.log(res)
+          console.log(res)
+          if (res.players) {
+            this.players = Object.keys(res.players).map(token => {
+                // properties: userToken, username, group, ready, score
+                return {
+                    ...res.players[token].userInfo,
+                    ready: res.players[token].ready,
+                    score: res.players[token].score
+                }
+            })
+          }
       })
       socket.on('readyStatus', res => {
-        // TODO: May have to change to object to ensure accuracy
-        this.players = res.readyPlayers.map(id => ({ id, name: 'Anon', score: 0 }))
+          console.log(res)
+          if (res.players) {
+              this.players = Object.keys(res.players).map(token => {
+                  // properties: userToken, username, group, ready, score
+                  return {
+                      ...res.players[token].userInfo,
+                      ready: res.players[token].ready,
+                      score: res.players[token].score
+                  }
+              })
+          }
+      })
+      socket.on('start', () => {
+          if (!this.timerStarted) {
+              this.timerStarted = true
+              this.isSnackbar = true
+          }
       })
       socket.on('clickingResponse', res => {
-        console.log(res)
+          console.log(res)
+          if (res.status === "clicking succeeded") {
+              res["scores"].forEach(score => {
+                  const player = this.players.find(o => o.userToken === score["userId"])
+                  player.score = score["score"]
+              })
+          }
       })
       socket.on('completeResponse', res => {
-        console.log(res)
+          console.log(res)
+          if (res.leaderboard[0]) {
+              this.winner = res.leaderboard[0]
+          }
+          this.isDialog = true
       })
-      socket.on('disconnect', () => {
-        console.log('user disconnected')
-      })
-
-      this.handleDialogAndTimerBeforeGame();
     },
     mounted: function() {
-      socket.emit('join', { gameType: "clicking", roomNo: Number(this.roomNo) })
-      socket.emit('ready', { gameType: "clicking", roomNo: Number(this.roomNo) })
+      socket.emit('join', { gameType: "clicking", roomNo: Number(this.roomNo), userToken: this.userToken })
     },
     methods: {
+      updateWidth: function(player) {
+        var valueToReduce = 7; // To prevent the bar from increasing too quickly.
+        return player.score - valueToReduce +'%';
+      },
       incrementScore: function() { // TODO: prevent overflows.
         this.score++;
-        this.bars[0].numClicks += 1;
-      },
-      checkTimerButton: function() {
-        var timerValue = document.getElementById('timer').textContent;
-        if (timerValue > 0) {
-          this.incrementScore();
-        }
-      },
-      handleDialogAndTimerBeforeGame: function() {
-        socket.on('dialogBeforeGame', res => {
-          this.dialogBeforeGame = res
-        })
-
-        socket.on('timerStarted', res => {
-          this.timerStarted = res
-        })
-      },
-      handleStart: function() {
-        socket.emit('beforeClicking', { gameType: "clicking", roomNo:Number(this.roomNo) });
-        this.handleDialogAndTimerBeforeGame();
       },
       handleTime: function(seconds) {
         this.timer = seconds
@@ -158,8 +188,11 @@
             socket.emit('clicking', { gameType: "clicking", roomNo: Number(this.roomNo), score: this.score })
         } else {
             socket.emit('complete', { gameType: "clicking", roomNo: Number(this.roomNo), score: this.score })
-            console.log('done!')
         }
+      },
+      onReady: function() {
+          this.isReady = true
+          socket.emit('ready', { gameType: "clicking", roomNo: Number(this.roomNo) })
       }
     },
   }
@@ -196,5 +229,22 @@
 
   .btn:focus {
     outline: 0;
+  }
+
+  .progress-bar {
+    padding: 30px;
+    margin: 30px;
+    vertical-align: middle;
+  }
+
+  .progress {
+    float: left;
+    padding: 15px;
+  }
+
+  .player-name {
+    position: relative;
+    padding: 15px;
+    font-weight: bold;
   }
 </style>
