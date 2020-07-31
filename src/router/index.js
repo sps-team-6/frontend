@@ -18,19 +18,20 @@ Vue.use(VueRouter)
     }
   },
   {
-    path: '/lobby',
+    path: '/lobby/:userToken',
     name: 'lobby',
-    component: Lobby
+    component: Lobby,
+    props: true
   },
   {
-    path: '/typing/:roomNo',
+    path: '/typing/:userToken/:roomNo',
     name: 'Typing',
     component: TypingGame,
     // When props is set to true, the route.params will be set as the component props.
     props: true
   },
   {
-    path: '/clicking/:roomNo',
+    path: '/clicking/:userToken/:roomNo',
     name: 'ClickingGame',
     component: ClickingGame,
     props: true

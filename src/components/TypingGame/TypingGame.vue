@@ -1,19 +1,37 @@
 <template>
     <v-container fluid id="tg__container">
-        <v-dialog v-model="isGameOver" max-width="30%">
+        <v-app-bar dark dense app>
+            <router-link :to="'/lobby/' + userToken">
+                <v-btn icon>
+                    <v-icon large>home</v-icon>
+                </v-btn>
+            </router-link>
+            <v-spacer></v-spacer>
+            <v-icon>account_circle</v-icon>
+            <div class="ml-2">{{ userToken }}</div>
+            <router-link to="/">
+                <v-btn icon>
+                    <v-icon>fingerprint</v-icon>
+                </v-btn>
+            </router-link>
+        </v-app-bar>
+
+        <v-dialog v-model="isDialog" max-width="30%">
             <v-card class="mx-auto" min-height="30%">
                 <v-card-title>
                     <p class="display-1 text--primary">Results</p>
                 </v-card-title>
                 <v-card-subtitle>
-                    <p class="text-primary">Game over! Your final score: {{ wpm - incorrectWords }}</p>
+                    <p class="text-primary">Game over! Winner: {{ winner["userId"] }}</p>
                 </v-card-subtitle>
             </v-card>
         </v-dialog>
         <v-row justify="center">
-            <v-avatar v-for="player in players" :key="player.id" class="tg__avatar" size="64" color="red lighten-4">
-                <div>{{ player.name.substring(0, 2).toUpperCase() || "##" }}</div>
-                <div><strong>{{ player.score }}</strong></div>
+            <v-avatar v-for="player in players" :key="player.id" class="tg__avatar" size="128" :color="player.group === 1 ? 'red' : 'blue'">
+                <div>{{ player.userToken.substring(0, 2).toUpperCase() || "##" }}</div>
+                <div>Score: {{ player.score }}</div>
+                <div>{{ player.ready ? 'Ready' : 'Not ready' }}</div>
+                <div>Group: {{ player.group }}</div>
             </v-avatar>
         </v-row>
         <v-row justify="center">
@@ -26,7 +44,6 @@
                     id="input-field"
                     v-model="inputText"
                     v-on:keydown.space.prevent="handleInput"
-                    v-on:keydown.once="handleStart"
                 >
                 </v-text-field>
             </v-card>
@@ -41,7 +58,23 @@
             <v-col>
                 <v-btn text><Timer inline :initial="timer" :frozen="!timerStarted" @timerValue="handleTime" /></v-btn>
             </v-col>
+            <v-col>
+                <v-btn v-on:click="onReady()" :color="this.isReady ? 'green' : 'red'">Ready</v-btn>
+            </v-col>
         </v-row>
+        <v-snackbar v-model="isSnackbar" :timeout="1000">
+            Game started!
+            <template v-slot:action="{ attrs }">
+                <v-btn
+                    color="blue"
+                    text
+                    v-bind="attrs"
+                    @click="isSnackbar=false"
+                >
+                    Close
+                </v-btn>
+            </template>
+        </v-snackbar>
     </v-container>
 </template>
 
@@ -58,7 +91,7 @@
         components: {
             Timer
         },
-        props: ['roomNo'],
+        props: ['userToken', 'roomNo'],
         data: function() {
             return {
                 // for typing game
@@ -70,8 +103,12 @@
                 // for timer
                 timer: TIME,
                 timerStarted: false,
+                isSnackbar: false,
+                isDialog: false,
                 // for real-time user score bar
                 players: [],
+                isReady: false,
+                winner: {}
             }
         },
         computed: {
@@ -79,27 +116,64 @@
                 const elapsedMins = ((TIME - this.timer) / 60) || 1
                 return Math.floor(this.correctWords / elapsedMins)
             },
-            isGameOver: function() {
-                return this.timer <= 0 || this.currWordIdx >= this.wordList.length
+            isGameOver: {
+                get: function() {
+                    return this.timer <= 0 || this.currWordIdx >= this.wordList.length
+                },
+                set: function(value) {
+                    this.isGameOver = value
+                }
             }
         },
         created: function() {
             console.log('joined typing game, room: ', this.roomNo)
             socket.on('joinStatus', res => {
                 console.log(res)
+                if (res.players) {
+                    this.players = Object.keys(res.players).map(token => {
+                        // properties: userToken, username, group, ready, score
+                        return {
+                            ...res.players[token].userInfo,
+                            ready: res.players[token].ready,
+                            score: res.players[token].score
+                        }
+                    })
+                }
             })
             socket.on('readyStatus', res => {
-                // TODO: May have to change to object to ensure accuracy
-                this.players = res.readyPlayers.map(id => ({ id, name: 'Anon', score: 0 }))
+                console.log(res)
+                if (res.players) {
+                    this.players = Object.keys(res.players).map(token => {
+                        // properties: userToken, username, group, ready, score
+                        return {
+                            ...res.players[token].userInfo,
+                            ready: res.players[token].ready,
+                            score: res.players[token].score
+                        }
+                    })
+                }
+            })
+            socket.on('start', () => {
+                if (!this.timerStarted) {
+                    this.timerStarted = true
+                    this.isSnackbar = true
+                }
             })
             socket.on('typingResponse', res => {
                 console.log(res)
+                if (res.status === "typing succeeded") {
+                    res["scores"].forEach(score => {
+                        const player = this.players.find(o => o.userToken === score["userId"])
+                        player.score = score["score"]
+                    })
+                }
             })
             socket.on('completeResponse', res => {
                 console.log(res)
-            })
-            socket.on('disconnect', () => {
-                console.log('user disconnected')
+                if (res["leaderboard"][0]) {
+                    this.winner = res["leaderboard"][0]
+                }
+                this.isDialog = true
             })
         },
         beforeMount: function() {
@@ -107,8 +181,7 @@
         },
         mounted: function() {
             this.showText()
-            socket.emit('join', { gameType: "typing", roomNo: Number(this.roomNo) })
-            socket.emit('ready', { gameType: "typing", roomNo: Number(this.roomNo) })
+            socket.emit('join', { gameType: "typing", roomNo: Number(this.roomNo), userToken: this.userToken })
         },
         methods: {
             loadText: function() {
@@ -146,19 +219,17 @@
                 this.inputText = ""
                 this.currWordIdx++
             },
-            handleStart: function() {
-                if (!this.timerStarted) {
-                    this.timerStarted = true
-                }
-            },
             handleTime: function(seconds) {
                 this.timer = seconds
                 if (seconds > 0) {
-                    socket.emit('typing', { gameType: "typing", roomNo: 0, score: this.wpm })
+                    socket.emit('typing', { gameType: "typing", roomNo: Number(this.roomNo), score: this.wpm })
                 } else {
-                    socket.emit('complete', { gameType: "typing", roomNo: 0, score: this.wpm })
-                    console.log('done!')
+                    socket.emit('complete', { gameType: "typing", roomNo: Number(this.roomNo), score: this.wpm })
                 }
+            },
+            onReady: function() {
+                this.isReady = true
+                socket.emit('ready', { gameType: "typing", roomNo: Number(this.roomNo) })
             }
         }
     }

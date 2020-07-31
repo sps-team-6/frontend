@@ -3,14 +3,6 @@
     <!-- for Material Icon usage. Don't remove -->
     <link href="https://fonts.googleapis.com/css?family=Material+Icons" rel="stylesheet">
 
-    <v-app-bar dark dense app v-if="this.$route.path !== '/'">
-      <router-link to="/lobby">
-        <v-btn icon>
-          <v-icon large>home</v-icon>
-        </v-btn>
-      </router-link>
-    </v-app-bar>
-
     <!-- Sizes your content based upon application components -->
     <v-main>
       <!-- Provides the application the proper gutter -->

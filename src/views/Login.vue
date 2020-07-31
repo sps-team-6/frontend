@@ -1,43 +1,53 @@
 <template>
-  <div id="login">
-    <h1>Login</h1>
-    <br><br>
-    <v-text-field outlined v-model="input.username" placeholder="Username"></v-text-field>
-    <br><br>
-    <v-btn v-on:click="login()">Login</v-btn>
-  </div>
+  <v-container id="login">
+    <v-card>
+      <v-card-title class="justify-center">
+        Select User
+      </v-card-title>
+      <v-card-text>
+        <v-btn
+          class="user__btn"
+          :key=idx v-for="(token, idx) in tokens"
+          v-on:click="login(token.userToken)"
+          :color="token.group === 1 ? 'red' : 'blue'"
+        >
+          {{ token.userName }} (Group {{ token.group }})
+        </v-btn>
+      </v-card-text>
+    </v-card>
+  </v-container>
 </template>
 
 <script>
     export default {
         name: 'Login',
-        data() {
+        data: function() {
             return {
-                input: {
-                    username: ""
-                }
+                tokens: [
+                    { group: 1, userToken: "ABCD", userName: "User A" },
+                    { group: 1, userToken: "BCDE", userName: "User B" },
+                    { group: 2, userToken: "CDEF", userName: "User C" },
+                    { group: 2, userToken: "DEFG", userName: "User D" }
+                ]
             }
         },
         methods:{
-            login(){
-                if (this.input.username !== ""){
-                    this.$router.replace('/lobby');
-                }
-                else{
-                    window.alert("Please enter a username");
-                }
+            login(userToken) {
+                this.$router.push(`/lobby/${userToken}`);
             }
         }
     }
 </script>
 
 <style scoped>
-    #login {
-        width: 500px;
-        border: 1px solid #CCCCCC;
-        background-color: #FFFFFF;
-        margin: auto;
-        margin-top: 200px;
-        padding: 20px;
-    }
+  #login {
+      width: 500px;
+      background-color: #FFFFFF;
+      margin: auto;
+      margin-top: 200px;
+      padding: 20px;
+  }
+  .user__btn {
+    margin: 8px;
+  }
 </style>
