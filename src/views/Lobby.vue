@@ -95,8 +95,7 @@
             // populates rooms object; returns { typing: [{roomNo, maxPlayersCount, currentPlayersCount]}, clicking: [...] }
             getRooms: async function() {
                 const newRooms = {}
-                console.log(process.env.VUE_APP_SERVER_URL)
-                await fetch(`${process.env.VUE_APP_SERVER_URL}/rooms`)
+                await fetch(`https://secure-sierra-78883.herokuapp.com/rooms`)
                     .then(res => res.json())
                     .then(rooms => {
                         rooms.games.forEach(o => newRooms[o.name] = [...o.rooms])
