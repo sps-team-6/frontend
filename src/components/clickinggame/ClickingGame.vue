@@ -92,7 +92,7 @@
     import io from "socket.io-client";
 
     const TIME = 15;
-    const socket = io(process.env.VUE_APP_SERVER_URL)
+    const socket = io("https://secure-sierra-78883.herokuapp.com")
 
     export default {
         name: 'ClickingGame',
