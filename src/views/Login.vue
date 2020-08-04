@@ -11,7 +11,7 @@
           v-on:click="login(token.userToken)"
           :color="token.group === 1 ? 'red' : 'blue'"
         >
-          {{ token.userName }} (Group {{ token.group }})
+          {{ token.userToken }} (Group {{ token.group }})
         </v-btn>
       </v-card-text>
     </v-card>
@@ -33,7 +33,9 @@
         },
         methods:{
             login(userToken) {
-                this.$router.push(`/lobby/${userToken}`);
+              // this.$router.push({ name: `/typing/${userToken}/${roomNo}`, params: { socket }})
+
+              this.$router.push(`/lobby/${userToken}`);
             }
         }
     }

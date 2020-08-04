@@ -6,14 +6,16 @@
                   <v-icon large>home</v-icon>
               </v-btn>
           </router-link>
-          <v-spacer></v-spacer>
-          <v-icon>account_circle</v-icon>
-          <div class="ml-2">{{ userToken }}</div>
           <router-link to="/">
-              <v-btn icon>
-                  <v-icon>fingerprint</v-icon>
+              <v-btn>
+                  Switch user
               </v-btn>
           </router-link>
+          <v-spacer></v-spacer>
+          <v-icon>account_circle</v-icon>
+          <div :class="userToken === 'ABCD' || userToken === 'BCDE' ? 'ml-2 red--text' : 'ml-2 blue--text'">
+              {{ userToken }}
+          </div>
       </v-app-bar>
 
     <v-dialog v-model="roomFullDialog" max-width="30%">

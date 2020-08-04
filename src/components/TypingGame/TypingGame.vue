@@ -6,14 +6,16 @@
                     <v-icon large>home</v-icon>
                 </v-btn>
             </router-link>
-            <v-spacer></v-spacer>
-            <v-icon>account_circle</v-icon>
-            <div class="ml-2">{{ userToken }}</div>
             <router-link to="/">
-                <v-btn icon>
-                    <v-icon>fingerprint</v-icon>
+                <v-btn>
+                    Switch user
                 </v-btn>
             </router-link>
+            <v-spacer></v-spacer>
+            <v-icon>account_circle</v-icon>
+            <div :class="userToken === 'ABCD' || userToken === 'BCDE' ? 'ml-2 red--text' : 'ml-2 blue--text'">
+                {{ userToken }}
+            </div>
         </v-app-bar>
 
         <v-dialog v-model="isDialog" max-width="30%">
@@ -28,7 +30,7 @@
         </v-dialog>
         <v-row justify="center">
             <v-avatar v-for="player in players" :key="player.id" class="tg__avatar" size="128" :color="player.group === 1 ? 'red' : 'blue'">
-                <div>{{ player.userToken.substring(0, 2).toUpperCase() || "##" }}</div>
+                <div>{{ player.userToken.toUpperCase() || "##" }}</div>
                 <div>Score: {{ player.score }}</div>
                 <div>{{ player.ready ? 'Ready' : 'Not ready' }}</div>
                 <div>Group: {{ player.group }}</div>
@@ -91,7 +93,7 @@
         components: {
             Timer
         },
-        props: ['userToken', 'roomNo'],
+        props: ['socket', 'userToken', 'roomNo'],
         data: function() {
             return {
                 // for typing game
@@ -130,27 +132,19 @@
             socket.on('joinStatus', res => {
                 console.log(res)
                 if (res.players) {
-                    this.players = Object.keys(res.players).map(token => {
-                        // properties: userToken, username, group, ready, score
-                        return {
-                            ...res.players[token].userInfo,
-                            ready: res.players[token].ready,
-                            score: res.players[token].score
-                        }
-                    })
+                    this.updatePlayers(res.players);
+                }
+            })
+            socket.on('leaveStatus', res => {
+                console.log(res)
+                if (res.players) {
+                    this.updatePlayers(res.players);
                 }
             })
             socket.on('readyStatus', res => {
                 console.log(res)
                 if (res.players) {
-                    this.players = Object.keys(res.players).map(token => {
-                        // properties: userToken, username, group, ready, score
-                        return {
-                            ...res.players[token].userInfo,
-                            ready: res.players[token].ready,
-                            score: res.players[token].score
-                        }
-                    })
+                    this.updatePlayers(res.players);
                 }
             })
             socket.on('start', () => {
@@ -183,7 +177,20 @@
             this.showText()
             socket.emit('join', { gameType: "typing", roomNo: Number(this.roomNo), userToken: this.userToken })
         },
+        beforeDestroy: function() {
+            socket.emit('leave', { gameType: "typing", roomNo: Number(this.roomNo), userToken: this.userToken })
+        },
         methods: {
+            updatePlayers: function(players) {
+                this.players = Object.keys(players).map(token => {
+                    // properties: userToken, username, group, ready, score
+                    return {
+                        ...players[token].userInfo,
+                        ready: players[token].ready,
+                        score: players[token].score
+                    }
+                })
+            },
             loadText: function() {
                 this.wordList = Array.from(wordBank.pap)
             },
