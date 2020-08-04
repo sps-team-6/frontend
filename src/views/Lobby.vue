@@ -95,7 +95,7 @@
             // populates rooms object; returns { typing: [{roomNo, maxPlayersCount, currentPlayersCount]}, clicking: [...] }
             getRooms: async function() {
                 const newRooms = {}
-                await fetch(`https://secure-sierra-78883.herokuapp.com/rooms`)
+                await fetch(`${process.env.BASE_URL}/rooms`)
                     .then(res => res.json())
                     .then(rooms => {
                         rooms.games.forEach(o => newRooms[o.name] = [...o.rooms])

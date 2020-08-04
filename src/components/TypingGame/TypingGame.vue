@@ -86,7 +86,7 @@
     import io from "socket.io-client"
 
     const TIME = 60;
-    const socket = io("https://secure-sierra-78883.herokuapp.com")
+    const socket = io(process.env.BASE_URL)
 
     export default {
         name: "TypingGame",
